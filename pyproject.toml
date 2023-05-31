@@ -1,0 +1,17 @@
+[project]
+name = "L.A."
+version = "0.1.0"
+description = "Autopilot for Limbus"
+authors = [
+    {name = "nullqwertyuiop", email = "null@member.fsf.org"},
+]
+dependencies = [
+    "opencv-python>=4.7.0.72",
+    "aircv>=1.4.6",
+    "pillow>=9.5.0",
+    "numpy>=1.24.3",
+    "pyautogui>=0.9.54",
+    "loguru>=0.7.0",
+]
+requires-python = ">= 3.10"
+license = {text = "AGPL-3.0 License"}
