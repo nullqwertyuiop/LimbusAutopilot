@@ -1,7 +1,7 @@
 import importlib
 import time
 from pathlib import Path
-from typing import overload, TypeVar
+from typing import overload, TypeVar, Callable
 
 import aircv
 import cv2
@@ -11,9 +11,19 @@ from PIL import Image, ImageGrab
 from loguru import logger
 
 from exception import ImageNotFound
-from model import ImageFindResult, CheckPair, ClickIt, RemoveMe, Continue, Call, Return, BaseStage
+from model import (
+    ImageFindResult,
+    CheckPair,
+    ClickIt,
+    RemoveMe,
+    Continue,
+    Call,
+    Return,
+    BaseStage,
+)
 
 _T = TypeVar("_T")
+
 
 def image_to_cv2(image: Image) -> numpy.ndarray:
     """
@@ -99,6 +109,7 @@ def move_click(
 ) -> None:
     ...
 
+
 @overload
 def move_click(
     target: Image.Image | numpy.ndarray,
@@ -118,7 +129,7 @@ def move_click(
     /,
     duration: float = 0.5,
     pause: float = 1.0,
-    reset: bool = True
+    reset: bool = True,
 ) -> None:
     """
     移动鼠标到指定位置并点击
@@ -158,7 +169,10 @@ def check_and_wait(
     *checks: CheckPair,
     similarity: float = 0.85,
     interval: float = 0.1,
-    delay: float = 1.0
+    delay: float = 1.0,
+    result_filter: Callable[
+        [list[ImageFindResult]], list[ImageFindResult]
+    ] = lambda _: _,
 ) -> tuple[list[ImageFindResult], _T | None]:
     """
     检查图片是否出现，出现则执行对应操作，否则继续检查
@@ -168,12 +182,15 @@ def check_and_wait(
         similarity (float, optional): 相似度. Defaults to 0.85.
         interval (float, optional): 检查间隔. Defaults to 0.1.
         delay (float, optional): 检查前延迟. Defaults to 1.0.
+        result_filter (callable): 过滤器
 
     Returns:
         list[ImageFindResult]: 图片识别结果
     """
     start = time.time()
-    logger.debug(f"开始检查，相似度 {similarity}，间隔 {interval} 秒，{len(checks)} 个检查，延迟 {delay} 秒")
+    logger.debug(
+        f"开始检查，相似度 {similarity}，间隔 {interval} 秒，{len(checks)} 个检查，延迟 {delay} 秒"
+    )
     time.sleep(delay)
     checks = list(checks)
     while True:
@@ -183,6 +200,8 @@ def check_and_wait(
         for check in checks:
             image = check.image
             if not (results := find_all(image, base, similarity)):
+                continue
+            if not (results := result_filter(results)):
                 continue
             if check.log is not None:
                 logger.info(check.log)
@@ -218,7 +237,14 @@ def register_stage(stage: BaseStage):
         stages.append(stage)
 
 
-
 def load_stages():
     for stage_file in Path("stage").glob("*.py"):
         importlib.import_module(f"stage.{stage_file.stem}")
+
+
+def rightmost(x):
+    return [max(x, key=lambda y: y["result"][0])]
+
+
+def leftmost(x):
+    return [min(x, key=lambda y: y["result"][0])]

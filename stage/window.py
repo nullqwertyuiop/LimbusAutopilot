@@ -21,16 +21,10 @@ class WindowStage(BaseStage):
         return {
             CheckPair(
                 name="Window",
-                image=Image.open(ASSETS / "main" / "drive_unselected.png"),
+                image=Image.open(ASSETS / "main" / "window_selected.png"),
                 actions=[Return],
                 returns=self,
             ),
-            CheckPair(
-                name="Window",
-                image=Image.open(ASSETS / "main" / "drive_selected.png"),
-                actions=[Return],
-                returns=self,
-            )
         }
 
     def proceed_assemble_enk_module(self):
@@ -38,15 +32,36 @@ class WindowStage(BaseStage):
         enk_cancel = Image.open(ASSETS / "main" / "enk_cancel.png")
         enk_max = Image.open(ASSETS / "main" / "enk_max.png")
         enk_confirm = Image.open(ASSETS / "main" / "enk_confirm.png")
-        check_and_wait(CheckPair(name="更新确认按钮", image=enk_module, actions=[ClickIt, Return]))
+        check_and_wait(
+            CheckPair(name="更新确认按钮", image=enk_module, actions=[ClickIt, Return])
+        )
         _, result = check_and_wait(
-            CheckPair(name="拉满组装 Enk Module", image=enk_max, actions=[ClickIt, Return], returns=True),
-            CheckPair(name="Enk Module 回落", image=enk_cancel, actions=[ClickIt, Return], returns=False)
+            CheckPair(
+                name="拉满组装 Enk Module",
+                image=enk_max,
+                actions=[ClickIt, Return],
+                returns=True,
+            ),
+            CheckPair(
+                name="Enk Module 回落",
+                image=enk_cancel,
+                actions=[ClickIt, Return],
+                returns=False,
+            ),
         )
         if not result:
             return
-        check_and_wait(CheckPair(name="组装 Enk Module", image=enk_confirm, actions=[ClickIt, Return]))
-        check_and_wait(CheckPair(name="返回 Window", image=enk_cancel, actions=[ClickIt, Return]))
+        check_and_wait(
+            CheckPair(
+                name="组装 Enk Module",
+                image=enk_confirm,
+                actions=[ClickIt, Return],
+                log="已组装 Enk Module",
+            )
+        )
+        check_and_wait(
+            CheckPair(name="返回 Window", image=enk_cancel, actions=[ClickIt, Return])
+        )
         self.assembled_enk_module = True
 
     def proceed(self):

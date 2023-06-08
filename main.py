@@ -7,8 +7,11 @@ from var import LOGO
 
 def main():
     logger.info(LOGO)
-    stage = determine_stage()
-    stage.proceed()
+    while True:
+        stage = determine_stage()
+        stage.proceed()
+        logger.info(f"{stage.name} 已执行完毕，退出阶段")
+        stage.exit()
 
 
 if __name__ == "__main__":

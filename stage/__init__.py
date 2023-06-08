@@ -5,8 +5,9 @@ from util import check_and_wait, load_stages, stages
 
 
 def determine_stage() -> BaseStage:
-    load_stages()
-    logger.success(f"已注册 {len(stages)} 个阶段")
+    if not stages:
+        load_stages()
+        logger.success(f"已注册 {len(stages)} 个阶段")
 
     pairs: set[CheckPair] = set()
     for stage in stages:
